@@ -1,0 +1,19 @@
+[[source]]
+url = "https://pypi.org/simple"
+verify_ssl = true
+name = "pypi"
+
+[packages]
+bokeh = "*"
+redis = "*"
+jupyterlab = "*"
+pandas = "*"
+scikit-image = "*"
+imageio = "*"
+pandas-gbq = "*"
+
+[dev-packages]
+ipdb = "*"
+
+[requires]
+python_version = "3.6"
