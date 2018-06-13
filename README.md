@@ -7,5 +7,5 @@ pipenv install
 
 Then launch the Bokeh server to display the viz:
 ```
-pipenv run bokeh serve --show viz.py
+pipenv run bokeh serve --show .
 ```
