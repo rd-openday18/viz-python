@@ -11,6 +11,7 @@ pandas = "*"
 scikit-image = "*"
 imageio = "*"
 pandas-gbq = "*"
+feather-format = "*"
 
 [dev-packages]
 ipdb = "*"
