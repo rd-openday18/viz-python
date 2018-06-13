@@ -76,15 +76,21 @@ fig.xaxis.major_label_text_font_size = '0pt'  # turn off x-axis tick labels
 fig.yaxis.major_label_text_font_size = '0pt'  # turn off y-axis tick labels
 
 fig.image_url(
-    ['http://localhost:8000/out.png'],
+    ['http://localhost:5006/viz-python/static/images/plan.png'],
     x=[0], y=[IMG_HEIGHT], w=[IMG_WIDTH], h=[IMG_HEIGHT]
 )
 
 source = ColumnDataSource(data=dict(x=[], y=[]))
+source_time = ColumnDataSource(data=dict(x=[1553], y=[IMG_HEIGHT-1018], text=[datetime.now().strftime('%I:%M %p')]))
+source_counts = ColumnDataSource(data=dict(
+    x=[284, 748, 1167],
+    y=[IMG_HEIGHT-90, IMG_HEIGHT-90, IMG_HEIGHT-90],
+    text=['', '', '']
+))
 
-fig.circle(
-    x='x', y='y', color='red', line_color='yellow', size=10, alpha=0.5, source=source
-)
+fig.circle(x='x', y='y', color='red', line_color='yellow', size=10, alpha=0.5, source=source)
+fig.text(x='x', y='y', text='text', text_color='#8CC5F8', text_font_size='20pt', source=source_time)
+fig.text(x='x', y='y', text='text', text_color='#8CC5F8', text_font_size='20pt', source=source_counts)
 
 prev_states = None
 
@@ -104,6 +110,23 @@ def update():
     if prev_states is not None:
         compare(prev_states, states)
     prev_states = states
+
+    # Update datetime
+    data_time = dict(
+        x=source_time.data['x'],
+        y=source_time.data['y'],
+        text=[datetime.now().strftime('%I:%M %p')]
+    )
+    source_time.data = data_time
+
+    # Update counts
+    counts = states['floor'].value_counts().to_dict()
+    data_counts = dict(
+        x=source_counts.data['x'],
+        y=source_counts.data['y'],
+        text=[str(counts[5]), str(counts[6]), str(counts[7])]
+    )
+    source_counts.data = data_counts
 
 curdoc().add_root(fig)
 curdoc().add_periodic_callback(update, 1000)
