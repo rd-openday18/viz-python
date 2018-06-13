@@ -4,6 +4,7 @@ import logging
 from os import environ
 from datetime import datetime, timedelta
 
+import pytz
 import pandas as pd
 import numpy as np
 from redis import StrictRedis
@@ -16,6 +17,8 @@ REDIS_PORT = int(environ['REDIS_PORT'])
 
 IMG_WIDTH = 1920
 IMG_HEIGHT = 1080
+
+TZ = pytz.timezone('Europe/Paris')
 
 logging.basicConfig(
     stream=sys.stdout, level=logging.INFO,
@@ -35,7 +38,7 @@ def load_beacon_pos():
 ref = load_ref_data()
 pos = load_beacon_pos()
 
-def get_last_states(noise=10, max_delta=timedelta(minutes=10)):
+def get_last_states(noise=1, max_delta=timedelta(minutes=10)):
     addrs = [t for t in r.scan_iter()]
     if not addrs:
         return None
@@ -47,8 +50,8 @@ def get_last_states(noise=10, max_delta=timedelta(minutes=10)):
     data['num_beacon'] = data['mdns_name'].str.replace('beacon-|.local', '')
     data['x_beacon'] = data['num_beacon'].apply(lambda s: pos[s][0])
     data['y_beacon'] = data['num_beacon'].apply(lambda s: pos[s][1])
-    data['x_beacon'] = data['x_beacon'] + np.random.randint(-noise, noise, size=n_samples)
-    data['y_beacon'] = IMG_HEIGHT - data['y_beacon'] + np.random.randint(-noise, noise, size=n_samples)
+    data['x_beacon'] = data['x_beacon'] + (noise * np.random.randn(n_samples))
+    data['y_beacon'] = IMG_HEIGHT - data['y_beacon'] + (noise * np.random.randn(n_samples))
     return data
 
 def compare(prev, cur):
@@ -81,7 +84,7 @@ fig.image_url(
 )
 
 source = ColumnDataSource(data=dict(x=[], y=[]))
-source_time = ColumnDataSource(data=dict(x=[1553], y=[IMG_HEIGHT-1018], text=[datetime.now().strftime('%I:%M %p')]))
+source_time = ColumnDataSource(data=dict(x=[1553], y=[IMG_HEIGHT-1018], text=[datetime.now(TZ).strftime('%I:%M %p')]))
 source_counts = ColumnDataSource(data=dict(
     x=[281, 725, 1164],
     y=[IMG_HEIGHT-90, IMG_HEIGHT-90, IMG_HEIGHT-90],
@@ -96,7 +99,7 @@ prev_states = None
 
 def update():
     global prev_states
-    states = get_last_states(noise=20)
+    states = get_last_states(noise=10)
     if states is None:
         return
     logging.info(f'min time: {states["datetime"].min()}')
@@ -115,7 +118,7 @@ def update():
     data_time = dict(
         x=source_time.data['x'],
         y=source_time.data['y'],
-        text=[datetime.now().strftime('%I:%M %p')]
+        text=[datetime.now(TZ).strftime('%I:%M %p')]
     )
     source_time.data = data_time
 
