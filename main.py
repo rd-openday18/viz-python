@@ -83,7 +83,7 @@ fig.image_url(
 source = ColumnDataSource(data=dict(x=[], y=[]))
 source_time = ColumnDataSource(data=dict(x=[1553], y=[IMG_HEIGHT-1018], text=[datetime.now().strftime('%I:%M %p')]))
 source_counts = ColumnDataSource(data=dict(
-    x=[284, 748, 1167],
+    x=[281, 725, 1164],
     y=[IMG_HEIGHT-90, IMG_HEIGHT-90, IMG_HEIGHT-90],
     text=['', '', '']
 ))
